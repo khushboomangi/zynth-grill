@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zynth Grill - Full Enterprise Operating System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#4E004B',
+                        'brand-dark': '#360034',
+                        'brand-light': '#6A0066',
+                        gold: '#D4AF37',
+                        'gold-light': '#F3E5AB'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #4E004B; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-brand text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center font-bold text-brand text-xl shadow">
+                    ZG
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide text-gold">ZYNTH GRILL</h1>
+                    <p class="text-xs text-gray-300">Nawabshah Doorstep Delivery</p>
+                </div>
+            </div>
+
+            <!-- Header Right: Staff Session Info -->
+            <div class="flex items-center gap-3">
+                <div id="nav-staff-info" class="hidden flex items-center gap-2">
+                    <div class="text-right">
+                        <p id="nav-staff-name" class="text-sm font-bold text-gold"></p>
+                        <span id="nav-staff-role" class="text-[10px] bg-gold/20 text-gold-light px-2 py-0.5 rounded-full uppercase font-bold"></span>
+                    </div>
+                    <button onclick="logoutStaff()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1.5 rounded-lg transition font-bold">
+                        <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Staff Login Modal -->
+    <div id="staff-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 relative">
+            <button onclick="toggleStaffModal(false)" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <div class="text-center mb-4">
+                <div class="w-12 h-12 bg-brand text-gold rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-2"><i class="fa-solid fa-user-shield"></i></div>
+                <h3 class="text-lg font-bold text-brand">Staff Portal Sign In</h3>
+                <p class="text-xs text-gray-500">For Kitchen, Rider & Managers only</p>
+            </div>
+            <form onsubmit="handleStaffLogin(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Staff Email</label>
+                    <input type="email" id="staff-email" required placeholder="staff@zynth.com" class="w-full text-sm p-2.5 border rounded-lg focus:outline-none focus:border-brand">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Password</label>
+                    <input type="password" id="staff-pass" required placeholder="••••••••" class="w-full text-sm p-2.5 border rounded-lg focus:outline-none focus:border-brand">
+                </div>
+                <button type="submit" class="w-full bg-brand hover:bg-brand-light text-gold font-bold py-2.5 rounded-xl transition shadow text-sm">
+                    Login to Dashboard
+                </button>
+            </form>
+            <div class="mt-4 pt-3 border-t text-[11px] text-gray-500 space-y-0.5 bg-gray-50 p-2.5 rounded-lg">
+                <p class="font-bold text-brand">Demo Staff Accounts:</p>
+                <p>• Kitchen: kitchen@zynth.com / kitchen123</p>
+                <p>• Rider: rider@zynth.com / rider123</p>
+                <p>• Manager: admin@zynth.com / admin123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 space-y-6">
+
+        <!-- ================= 1. CUSTOMER APP VIEW ================= -->
+        <section id="screen-customer" class="space-y-6">
+            <!-- Header Banner -->
+            <div class="bg-gradient-to-r from-brand to-brand-dark rounded-2xl p-6 text-white shadow-xl flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <span class="bg-gold text-brand text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">Exclusive Nawabshah Delivery</span>
+                    <h2 class="text-3xl font-extrabold mt-2 text-gold">Order Delicious Food</h2>
+                    <p class="text-gray-200 text-sm mt-1">Select your exact location in Nawabshah for quick doorstep delivery.</p>
+                </div>
+                <div class="bg-white/15 backdrop-blur-md p-3 rounded-xl border border-white/20 w-full md:w-auto">
+                    <label class="block text-xs text-gold font-semibold mb-1"><i class="fa-solid fa-location-dot"></i> Delivery Area / Location:</label>
+                    <select id="cust-location" class="bg-brand-dark text-white rounded-lg p-2 text-sm border border-gold/40 focus:outline-none w-full">
+                        <option>SBBU University</option>
+                        <option>QUEST University</option>
+                        <option>QUEST Private Colony</option>
+                        <option>PUMHS Girls Hostel</option>
+                        <option>PUMHS Hostel</option>
+                        <option>PUMHS New Campus</option>
+                        <option>Ali Shah Bunglow's</option>
+                        <option>Cancer Hospital</option>
+                        <option>Children Hospital</option>
+                        <option>Golden Villa's</option>
+                        <option>Grid Station</option>
+                        <option>Housing Society</option>
+                        <option>Mehran Private Colony</option>
+                        <option>Muhammadi Town</option>
+                        <option>New Naka</option>
+                        <option>Pite Institute</option>
+                        <option>Quest Colony</option>
+                        <option>Rangers Pump</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Live Order Tracking Bar -->
+            <div class="bg-white p-4 rounded-xl shadow border flex flex-col md:flex-row justify-between items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-magnifying-glass-location text-brand text-xl"></i>
+                    <div>
+                        <h4 class="font-bold text-sm text-brand">Track Your Live Order</h4>
+                        <p class="text-xs text-gray-500">Enter your Order ID (e.g. ZG-4812) to check live status</p>
+                    </div>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <input type="text" id="track-id-input" placeholder="Order ID..." class="border rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-brand">
+                    <button onclick="trackOrder()" class="bg-brand text-gold font-bold text-xs px-4 py-1.5 rounded-lg hover:bg-brand-light transition">Track</button>
+                </div>
+            </div>
+            <div id="track-result-box" class="hidden bg-purple-50 border border-brand/20 p-4 rounded-xl text-xs space-y-1"></div>
+
+            <!-- Category Filter Bar -->
+            <div class="flex overflow-x-auto gap-2 pb-2 scrollbar-none text-xs font-semibold" id="category-bar"></div>
+
+            <!-- Menu Grid & Cart -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Menu Items -->
+                <div class="md:col-span-2 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-brand flex items-center gap-2">
+                            <i class="fa-solid fa-book-open text-gold"></i> Zynth Grill Full Menu
+                        </h3>
+                        <input type="text" id="search-input" onkeyup="filterMenu()" placeholder="Search dishes..." class="border rounded-lg px-3 py-1 text-sm focus:outline-none focus:border-brand">
+                    </div>
+                    <div id="customer-menu-grid" class="grid sm:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto pr-1"></div>
+                </div>
+
+                <!-- Shopping Cart & Checkout -->
+                <div class="space-y-6">
+                    <div class="bg-white rounded-2xl p-5 shadow-lg border border-gray-200">
+                        <h3 class="text-lg font-bold text-brand pb-3 border-b flex justify-between items-center">
+                            <span><i class="fa-solid fa-basket-shopping text-gold mr-2"></i> Your Basket</span>
+                            <span id="cart-count" class="bg-gold text-brand text-xs px-2 py-0.5 rounded-full font-bold">0 Items</span>
+                        </h3>
+                        
+                        <div id="cart-items" class="py-4 space-y-3 max-h-48 overflow-y-auto">
+                            <p class="text-sm text-gray-400 text-center py-4">Your basket is empty.</p>
+                        </div>
+
+                        <div class="border-t pt-3 space-y-2 text-sm">
+                            <div class="flex justify-between text-gray-600">
+                                <span>Subtotal:</span>
+                                <span id="cart-subtotal">Rs. 0</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>Nawabshah Delivery Fee:</span>
+                                <span class="text-green-600 font-semibold">Rs. 100</span>
+                            </div>
+                            <div class="flex justify-between font-bold text-base text-brand border-t pt-2">
+                                <span>Total Payable:</span>
+                                <span id="cart-total" class="text-gold">Rs. 100</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 space-y-2">
+                            <input type="text" id="cust-name" placeholder="Your Name *" class="w-full text-sm p-2 border rounded-lg focus:outline-none focus:border-brand">
+                            <input type="tel" id="cust-phone" placeholder="Phone Number (e.g. 03001234567) *" class="w-full text-sm p-2 border rounded-lg focus:outline-none focus:border-brand">
+                            <input type="text" id="cust-address" placeholder="House No / Street / Landmark (Nawabshah) *" class="w-full text-sm p-2 border rounded-lg focus:outline-none focus:border-brand">
+                            
+                            <div class="pt-1">
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Payment Method:</label>
+                                <select id="cust-payment-type" onchange="togglePaymentDetails()" class="w-full text-xs p-2 border rounded-lg focus:outline-none focus:border-brand bg-gray-50">
+                                    <option value="Cash on Delivery (COD)">Cash on Delivery (COD)</option>
+                                    <option value="EasyPaisa / JazzCash">EasyPaisa / JazzCash (03093009181)</option>
+                                </select>
+                            </div>
+
+                            <div id="online-pay-box" class="hidden bg-amber-50 border border-amber-200 p-2 rounded-lg text-xs space-y-1">
+                                <p class="text-amber-800 font-bold">Transfer to: 03093009181 (Khushboo Mangi)</p>
+                                <input type="text" id="cust-tid" placeholder="Enter Transaction ID (TID) / Ref No" class="w-full p-1.5 border rounded bg-white text-xs focus:outline-none">
+                            </div>
+
+                            <textarea id="cust-notes" placeholder="Special Instructions (Optional)" rows="2" class="w-full text-sm p-2 border rounded-lg focus:outline-none focus:border-brand"></textarea>
+                            
+                            <button onclick="placeOrder()" class="w-full bg-brand hover:bg-brand-light text-gold font-bold py-2.5 rounded-xl transition shadow flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-paper-plane"></i> Place Order Now
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Customer Complaint Panel -->
+                    <div class="bg-white rounded-2xl p-5 shadow-lg border border-red-100">
+                        <h4 class="font-bold text-red-700 text-sm mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-exclamation"></i> Have a Complaint?
+                        </h4>
+                        <p class="text-xs text-gray-500 mb-3">Facing any issues? Let us know directly.</p>
+                        <form onsubmit="submitComplaint(event)" class="space-y-2">
+                            <input type="text" id="comp-name" required placeholder="Your Name *" class="w-full text-xs p-2 border rounded-lg focus:outline-none">
+                            <input type="text" id="comp-order-id" placeholder="Order ID (Optional)" class="w-full text-xs p-2 border rounded-lg focus:outline-none">
+                            <textarea id="comp-message" required placeholder="Describe your complaint..." rows="2" class="w-full text-xs p-2 border rounded-lg focus:outline-none"></textarea>
+                            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-2 rounded-lg transition">
+                                Submit Complaint
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Info Section Card (FAQs & Privacy Policy) -->
+            <div id="info-section-card" class="bg-white rounded-2xl shadow-xl p-6 border border-brand/20 space-y-4">
+                <div class="flex border-b pb-2 gap-4">
+                    <button onclick="switchInfoTab('faqs')" id="tab-btn-faqs" class="font-extrabold text-brand border-b-2 border-brand pb-1 text-sm">Frequently Asked Questions (FAQs)</button>
+                    <button onclick="switchInfoTab('privacy')" id="tab-btn-privacy" class="font-bold text-gray-400 hover:text-brand pb-1 text-sm">Privacy Policy</button>
+                </div>
+                <div id="content-faqs" class="space-y-3 text-xs">
+                    <div class="bg-gray-50 p-3 rounded-lg border">
+                        <p class="font-bold text-brand">Q: What are your delivery areas in Nawabshah?</p>
+                        <p class="text-gray-600 mt-1">A: We deliver across all major sectors including QUEST University, SBBU, PUMHS Hostels, and Housing Society.</p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg border">
+                        <p class="font-bold text-brand">Q: What payment methods do you accept?</p>
+                        <p class="text-gray-600 mt-1">A: Cash on Delivery (COD) and online transfers via EasyPaisa / JazzCash (Account: 03093009181).</p>
+                    </div>
+                </div>
+                <div id="content-privacy" class="hidden space-y-3 text-xs text-gray-700">
+                    <h3 class="font-bold text-brand text-sm">Privacy Policy & Data Security</h3>
+                    <p>At Zynth Grill, we collect customer names, contact numbers, and delivery addresses solely for fulfilling food delivery orders across Nawabshah. Your data is kept secure.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 2. KITCHEN DISPLAY VIEW ================= -->
+        <section id="screen-kitchen" class="hidden space-y-6">
+            <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow border-l-4 border-brand">
+                <div>
+                    <h2 class="text-2xl font-bold text-brand"><i class="fa-solid fa-fire-burner text-gold"></i> Kitchen Order Display (KDS)</h2>
+                    <p class="text-xs text-gray-500">Live order queue for Chef and Kitchen Staff</p>
+                </div>
+                <span class="flex h-3 w-3 relative"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span></span>
+            </div>
+            <div id="kds-orders-container" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+
+        <!-- ================= 3. RIDER PANEL VIEW ================= -->
+        <section id="screen-rider" class="hidden space-y-6">
+            <div class="bg-white p-4 rounded-xl shadow flex justify-between items-center border-l-4 border-gold">
+                <div>
+                    <h2 class="text-2xl font-bold text-brand"><i class="fa-solid fa-motorcycle text-gold"></i> Rider Delivery Queue</h2>
+                    <p class="text-xs text-gray-500">Nawabshah Local Delivery Dispatch</p>
+                </div>
+                <span class="bg-purple-100 text-brand font-bold text-xs px-3 py-1.5 rounded-lg border border-brand/20">Active Rider Duty</span>
+            </div>
+            <div id="rider-orders-container" class="grid md:grid-cols-2 gap-4"></div>
+        </section>
+
+        <!-- ================= 4. ADMIN & MANAGER VIEW ================= -->
+        <section id="screen-admin" class="hidden space-y-6">
+            <div class="grid sm:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-xl shadow border-l-4 border-brand">
+                    <p class="text-xs font-bold text-gray-400 uppercase">Total Sales Revenue</p>
+                    <h3 id="stat-revenue" class="text-2xl font-extrabold text-brand mt-1">Rs. 0</h3>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow border-l-4 border-gold">
+                    <p class="text-xs font-bold text-gray-400 uppercase">Total Orders</p>
+                    <h3 id="stat-orders" class="text-2xl font-extrabold text-brand mt-1">0</h3>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow border-l-4 border-red-500">
+                    <p class="text-xs font-bold text-gray-400 uppercase">Customer Complaints</p>
+                    <h3 id="stat-complaints" class="text-2xl font-extrabold text-red-600 mt-1">0</h3>
+                </div>
+            </div>
+
+            <!-- Menu Management -->
+            <div class="bg-white rounded-xl shadow border overflow-hidden">
+                <div class="p-4 bg-brand text-white flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold text-gold text-base"><i class="fa-solid fa-utensils mr-2"></i> Dynamic Menu Management</h3>
+                        <p class="text-xs text-gray-200">Add new items, update prices, change image URLs, or delete items instantly.</p>
+                    </div>
+                    <button onclick="openMenuModal()" class="bg-gold hover:bg-yellow-400 text-brand font-bold text-xs px-3 py-2 rounded-lg transition shadow">
+                        <i class="fa-solid fa-circle-plus mr-1"></i> Add New Dish
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-100 text-gray-700 text-xs uppercase border-b">
+                            <tr>
+                                <th class="p-3">Dish</th>
+                                <th class="p-3">Category</th>
+                                <th class="p-3">Price (PKR)</th>
+                                <th class="p-3">Stock Status</th>
+                                <th class="p-3 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-menu-table" class="divide-y text-gray-700"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Complaints Log -->
+            <div class="bg-white rounded-xl shadow overflow-hidden border border-red-200">
+                <div class="p-4 bg-red-50 border-b">
+                    <h3 class="font-bold text-red-800"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Customer Complaints Log</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-red-700 text-white text-xs uppercase">
+                            <tr>
+                                <th class="p-3">Customer</th>
+                                <th class="p-3">Order ID</th>
+                                <th class="p-3">Complaint Message</th>
+                                <th class="p-3">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-complaints-table" class="divide-y text-gray-700"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Master Orders Log -->
+            <div class="bg-white rounded-xl shadow overflow-hidden border">
+                <div class="p-4 bg-gray-50 border-b flex justify-between items-center">
+                    <h3 class="font-bold text-brand">All Orders Log</h3>
+                    <button onclick="clearSystemData()" class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-lg hover:bg-red-200">Reset Demo Data</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-brand text-white text-xs uppercase">
+                            <tr>
+                                <th class="p-3">Order ID</th>
+                                <th class="p-3">Customer</th>
+                                <th class="p-3">Delivery Address</th>
+                                <th class="p-3">Amount & Payment</th>
+                                <th class="p-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-orders-table" class="divide-y text-gray-700"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Menu Modal -->
+    <div id="menu-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
+            <button onclick="closeMenuModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <h3 id="menu-modal-title" class="text-lg font-bold text-brand mb-4">Add New Menu Dish</h3>
+            <form onsubmit="handleMenuSubmit(event)" class="space-y-3">
+                <input type="hidden" id="menu-edit-id">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Dish Name *</label>
+                    <input type="text" id="menu-name" required placeholder="e.g. Zinger Cheese Burger" class="w-full text-xs p-2.5 border rounded-lg focus:outline-none focus:border-brand">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Category *</label>
+                        <select id="menu-category" class="w-full text-xs p-2.5 border rounded-lg focus:outline-none focus:border-brand">
+                            <option value="Burgers">Burgers</option>
+                            <option value="Appetizers">Appetizers</option>
+                            <option value="Soups">Soups</option>
+                            <option value="Zynth Bar B.Q">Zynth Bar B.Q</option>
+                            <option value="Chinese Cuisine">Chinese Cuisine</option>
+                            <option value="Rice Specialties">Rice Specialties</option>
+                            <option value="Noodles">Noodles</option>
+                            <option value="Pakistani Cuisine">Pakistani Cuisine</option>
+                            <option value="Mutton Specialities">Mutton Specialities</option>
+                            <option value="Beverages">Beverages</option>
+                            <option value="Zynth Specialties">Zynth Specialties</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Price (Rs.) *</label>
+                        <input type="number" id="menu-price" required placeholder="520" class="w-full text-xs p-2.5 border rounded-lg focus:outline-none focus:border-brand">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Image URL *</label>
+                    <input type="url" id="menu-img" required placeholder="https://images.unsplash.com/..." class="w-full text-xs p-2.5 border rounded-lg focus:outline-none focus:border-brand">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Description</label>
+                    <textarea id="menu-desc" rows="2" placeholder="Ingredients or taste description..." class="w-full text-xs p-2 border rounded-lg focus:outline-none focus:border-brand"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-brand hover:bg-brand-light text-gold font-bold py-2.5 rounded-xl transition shadow text-xs">
+                    Save Dish to Menu
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-gray-200 pt-10 mt-12 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8 pb-8">
+            <div class="space-y-3">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-full bg-brand flex items-center justify-center font-bold text-gold text-2xl shadow">ZG</div>
+                    <div>
+                        <h2 class="text-xl font-extrabold tracking-wide text-brand">ZYNTH GRILL</h2>
+                        <p class="text-xs text-gray-500">The Ultimate Taste of Nawabshah</p>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-600">Providing high-quality royal BBQ, fast food, Chinese and traditional Pakistani cuisine exclusively delivered across Nawabshah.</p>
+            </div>
+
+            <div class="space-y-3 text-sm">
+                <h3 class="font-bold text-brand uppercase text-xs tracking-wider">Contact Us</h3>
+                <p class="text-gray-600 text-xs flex items-center gap-2">
+                    <i class="fa-solid fa-phone text-gold"></i> 
+                    <a href="tel:03093009181" class="hover:underline font-semibold">0309-3009181</a>
+                </p>
+                <p class="text-gray-600 text-xs flex items-center gap-2">
+                    <i class="fa-solid fa-location-dot text-gold"></i> Main University Road, Nawabshah, Sindh
+                </p>
+                <div class="flex flex-col gap-2 pt-1">
+                    <button onclick="window.location.href='https://api.whatsapp.com/send?phone=923093009181'" class="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-2 rounded-lg font-bold flex items-center gap-2 w-fit shadow transition">
+                        <i class="fa-brands fa-whatsapp text-base"></i> Chat on WhatsApp (03093009181)
+                    </button>
+                    <button onclick="window.location.href='https://www.instagram.com/khushboo.mangi/'" class="bg-gradient-to-r from-purple-600 via-pink-600 to-yellow-500 text-white text-xs px-3 py-2 rounded-lg font-bold flex items-center gap-2 w-fit shadow transition">
+                        <i class="fa-brands fa-instagram text-base"></i> Instagram (@khushboo.mangi)
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-2 text-sm">
+                <h3 class="font-bold text-brand uppercase text-xs tracking-wider">Help & Support</h3>
+                <ul class="text-xs space-y-1.5 text-gray-600">
+                    <li><button onclick="document.getElementById('comp-name').focus(); document.getElementById('comp-name').scrollIntoView({behavior: 'smooth'});" class="hover:text-brand font-semibold text-left">Submit Your Complaint</button></li>
+                    <li><button onclick="document.getElementById('cust-location').focus(); document.getElementById('cust-location').scrollIntoView({behavior: 'smooth'});" class="hover:text-brand font-semibold text-left">Nawabshah Delivery Locations</button></li>
+                    <li><button onclick="openInfoModal('privacy')" class="hover:text-brand font-semibold text-left">Privacy Policy</button></li>
+                    <li><button onclick="openInfoModal('faqs')" class="hover:text-brand font-semibold text-left">FAQs</button></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Food Gallery Banner -->
+        <div class="bg-brand border-t-4 border-gold py-4 px-2 overflow-x-auto">
+            <div class="max-w-7xl mx-auto flex items-center justify-between gap-3 min-w-[800px]">
+                <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300" class="h-20 w-32 object-cover rounded-xl shadow-md border border-gold/40 hover:scale-105 transition" alt="Burgers">
+                <img src="https://images.unsplash.com/photo-1562967914-608f82629710?w=300" class="h-20 w-32 object-cover rounded-xl shadow-md border border-gold/40 hover:scale-105 transition" alt="Crispy Fried Chicken">
+                <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300" class="h-20 w-32 object-cover rounded-xl shadow-md border border-gold/40 hover:scale-105 transition" alt="BBQ Seekh Kabab">
+                <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300" class="h-20 w-32 object-cover rounded-xl shadow-md border border-gold/40 hover:scale-105 transition" alt="Pizza">
+                <img src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300" class="h-20 w-32 object-cover rounded-xl shadow-md border border-gold/40 hover:scale-105 transition" alt="Shahi Biryani">
+                <img src="https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=300" class="h-20 w-32 object-cover rounded-xl shadow-md border border-gold/40 hover:scale-105 transition" alt="Chicken Karahi">
+                <img src="https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=300" class="h-20 w-32 object-cover rounded-xl shadow-md border border-gold/40 hover:scale-105 transition" alt="Chilled Drinks">
+            </div>
+        </div>
+        <div id="copyright-footer" onclick="checkTripleClick()" class="bg-black text-white text-[11px] py-3 text-center cursor-pointer select-none">
+            &copy; 2026 Zynth Grill Nawabshah. All Rights Reserved. Designed with Deep Purple Theme (#4E004B).
+        </div>
+    </footer>
+
+    <!-- Script Engine -->
+    <script>
+        let defaultMenu = [
+            { id: 1, name: "Fish Crackers", price: 300, category: "Appetizers", desc: "Crispy crunchy crackers.", inStock: true, img: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=400" },
+            { id: 2, name: "Spicy Chicken Wings", price: 580, category: "Appetizers", desc: "Tossed in hot spices.", inStock: true, img: "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?w=400" },
+            { id: 3, name: "Chicken Spring Roll", price: 580, category: "Appetizers", desc: "Filled with seasoned chicken & veg.", inStock: true, img: "https://images.unsplash.com/photo-1544025162-d76694265947?w=400" },
+            { id: 8, name: "Zinger Cheese Burger", price: 550, category: "Burgers", desc: "Crispy chicken patty topped with melted cheese slice.", inStock: true, img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400" },
+            { id: 10, name: "Zynth Special Soup - Half", price: 680, category: "Soups", desc: "Chef's signature hot thick soup.", inStock: true, img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400" },
+            { id: 27, name: "BBQ Khazana", price: 3290, category: "Zynth Bar B.Q", desc: "Mutton Chop, Dum Seekh, Fish Tikka, Malai Boti + Afghani Pulao.", inStock: true, img: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400" },
+            { id: 31, name: "Chicken Malai Boti", price: 1120, category: "Zynth Bar B.Q", desc: "Creamy boneless grilled chicken.", inStock: true, img: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400" },
+            { id: 49, name: "Zynth Special Chicken", price: 1120, category: "Chinese Cuisine", desc: "Signature Chinese wok-tossed chicken.", inStock: true, img: "https://images.unsplash.com/photo-1525755662778-989d0524087e?w=400" },
+            { id: 67, name: "Shahi Chicken Biryani", price: 1190, category: "Rice Specialties", desc: "Aromatic chicken dum biryani.", inStock: true, img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400" },
+            { id: 73, name: "Chicken Karahi - Full", price: 2290, category: "Pakistani Cuisine", desc: "Fresh wok cooked chicken karahi.", inStock: true, img: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=400" },
+            { id: 117, name: "Mint Margarita", price: 450, category: "Beverages", desc: "Refreshing mint blend.", inStock: true, img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=400" }
+        ];
+
+        let menuItems = JSON.parse(localStorage.getItem('zg_stock_menu')) || defaultMenu;
+        const staffUsers = [
+            { email: "kitchen@zynth.com", pass: "kitchen123", name: "Chef Master", role: "kitchen" },
+            { email: "rider@zynth.com", pass: "rider123", name: "Ali Rider", role: "rider" },
+            { email: "admin@zynth.com", pass: "admin123", name: "Zynth Manager", role: "admin" }
+        ];
+
+        let activeStaff = JSON.parse(localStorage.getItem('zg_active_staff')) || null;
+        let orders = JSON.parse(localStorage.getItem('zg_orders')) || [];
+        let complaints = JSON.parse(localStorage.getItem('zg_complaints')) || [];
+        let cart = [];
+        let selectedCategory = "All";
+        let clickCount = 0;
+        let clickTimer = null;
+
+        function initApp() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('access') === 'staff') { toggleStaffModal(true); }
+            if (activeStaff) { applyStaffSession(); } else { showCustomerView(); }
+        }
+
+        function checkTripleClick() {
+            clickCount++;
+            if (clickCount === 3) {
+                toggleStaffModal(true);
+                clickCount = 0;
+                clearTimeout(clickTimer);
+            } else {
+                clearTimeout(clickTimer);
+                clickTimer = setTimeout(() => { clickCount = 0; }, 800);
+            }
+        }
+
+        function switchInfoTab(type) {
+            const btnFaqs = document.getElementById('tab-btn-faqs');
+            const btnPrivacy = document.getElementById('tab-btn-privacy');
+            const boxFaqs = document.getElementById('content-faqs');
+            const boxPrivacy = document.getElementById('content-privacy');
+
+            if(type === 'faqs') {
+                btnFaqs.className = "font-extrabold text-brand border-b-2 border-brand pb-1 text-sm";
+                btnPrivacy.className = "font-bold text-gray-400 hover:text-brand pb-1 text-sm";
+                boxFaqs.classList.remove('hidden');
+                boxPrivacy.classList.add('hidden');
+            } else {
+                btnPrivacy.className = "font-extrabold text-brand border-b-2 border-brand pb-1 text-sm";
+                btnFaqs.className = "font-bold text-gray-400 hover:text-brand pb-1 text-sm";
+                boxPrivacy.classList.remove('hidden');
+                boxFaqs.classList.add('hidden');
+            }
+        }
+
+        function openInfoModal(type) {
+            switchInfoTab(type);
+            document.getElementById('info-section-card').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function toggleStaffModal(show) {
+            const modal = document.getElementById('staff-modal');
+            if(show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+
+        function togglePaymentDetails() {
+            const ptype = document.getElementById('cust-payment-type').value;
+            const pbox = document.getElementById('online-pay-box');
+            if(ptype.includes("EasyPaisa")) pbox.classList.remove('hidden');
+            else pbox.classList.add('hidden');
+        }
+
+        function handleStaffLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('staff-email').value.trim().toLowerCase();
+            const pass = document.getElementById('staff-pass').value;
+            const found = staffUsers.find(u => u.email === email && u.pass === pass);
+            if(found) {
+                activeStaff = found;
+                localStorage.setItem('zg_active_staff', JSON.stringify(activeStaff));
+                toggleStaffModal(false);
+                applyStaffSession();
+            } else {
+                alert("Invalid Staff Credentials!");
+            }
+        }
+
+        function logoutStaff() {
+            localStorage.removeItem('zg_active_staff');
+            activeStaff = null;
+            showCustomerView();
+        }
+
+        function showCustomerView() {
+            ['customer', 'kitchen', 'rider', 'admin'].forEach(s => {
+                document.getElementById(`screen-${s}`).classList.add('hidden');
+            });
+            document.getElementById('screen-customer').classList.remove('hidden');
+            document.getElementById('nav-staff-info').classList.add('hidden');
+            renderCategories();
+            renderMenu();
+        }
+
+        function applyStaffSession() {
+            ['customer', 'kitchen', 'rider', 'admin'].forEach(s => {
+                document.getElementById(`screen-${s}`).classList.add('hidden');
+            });
+            document.getElementById(`screen-${activeStaff.role}`).classList.remove('hidden');
+            document.getElementById('nav-staff-info').classList.remove('hidden');
+            document.getElementById('nav-staff-name').innerText = activeStaff.name;
+            document.getElementById('nav-staff-role').innerText = activeStaff.role;
+            renderStaffDashboard();
+        }
+
+        function trackOrder() {
+            const id = document.getElementById('track-id-input').value.trim().toUpperCase();
+            const box = document.getElementById('track-result-box');
+            const found = orders.find(o => o.id === id);
+            if(found) {
+                box.classList.remove('hidden');
+                box.innerHTML = `<p class="font-bold text-brand">Order #${found.id} - Status: <span class="text-amber-800 bg-amber-200 px-2 py-0.5 rounded">${found.status}</span></p><p><strong>Customer:</strong> ${found.customer} | <strong>Total:</strong> Rs. ${found.total}</p><p><strong>Location:</strong> ${found.location} (${found.address})</p>`;
+            } else {
+                box.classList.remove('hidden');
+                box.innerHTML = `<p class="text-red-600 font-bold">Order ID not found.</p>`;
+            }
+        }
+
+        function renderCategories() {
+            const categories = ["All", ...new Set(menuItems.map(i => i.category))];
+            document.getElementById('category-bar').innerHTML = categories.map(cat => `
+                <button onclick="setCategory('${cat}')" class="px-3 py-1.5 rounded-full border whitespace-nowrap transition ${selectedCategory === cat ? 'bg-brand text-gold border-brand font-bold' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}">${cat}</button>
+            `).join('');
+        }
+
+        function setCategory(cat) { selectedCategory = cat; renderCategories(); renderMenu(); }
+        function filterMenu() { renderMenu(); }
+
+        function renderMenu() {
+            const grid = document.getElementById('customer-menu-grid');
+            const search = document.getElementById('search-input')?.value.toLowerCase() || '';
+            const filtered = menuItems.filter(item => {
+                return (selectedCategory === "All" || item.category === selectedCategory) && (item.name.toLowerCase().includes(search) || item.desc.toLowerCase().includes(search));
+            });
+
+            grid.innerHTML = filtered.map(item => `
+                <div class="bg-white rounded-xl shadow overflow-hidden border flex flex-col justify-between hover:shadow-md transition ${!item.inStock ? 'opacity-50 grayscale' : ''}">
+                    <img src="${item.img}" class="h-32 w-full object-cover" alt="${item.name}">
+                    <div class="p-3 flex-grow">
+                        <span class="text-[10px] font-bold text-gold uppercase bg-brand/10 px-2 py-0.5 rounded">${item.category}</span>
+                        <h4 class="font-bold text-brand mt-1 text-sm">${item.name}</h4>
+                        <p class="text-xs text-gray-500 mt-0.5 line-clamp-2">${item.desc}</p>
+                    </div>
+                    <div class="p-3 bg-gray-50 border-t flex justify-between items-center">
+                        <span class="font-extrabold text-brand text-sm">Rs. ${item.price}</span>
+                        ${item.inStock ? `<button onclick="addToCart(${item.id})" class="bg-brand hover:bg-brand-light text-gold font-bold text-xs px-3 py-1.5 rounded-lg transition">+ Add</button>` : `<span class="text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded">Out of Stock</span>`}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(itemId) {
+            const item = menuItems.find(i => i.id === itemId);
+            if(!item.inStock) return;
+            const existing = cart.find(i => i.id === itemId);
+            if(existing) existing.qty++; else cart.push({ ...item, qty: 1 });
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            if(cart.length === 0) {
+                container.innerHTML = `<p class="text-sm text-gray-400 text-center py-4">Your basket is empty.</p>`;
+                document.getElementById('cart-subtotal').innerText = `Rs. 0`;
+                document.getElementById('cart-total').innerText = `Rs. 100`;
+                document.getElementById('cart-count').innerText = `0 Items`;
+                return;
+            }
+            let subtotal = 0, count = 0;
+            container.innerHTML = cart.map(i => {
+                subtotal += i.price * i.qty;
+                count += i.qty;
+                return `<div class="flex justify-between items-center text-sm"><div><p class="font-bold text-gray-800">${i.name}</p><p class="text-xs text-gray-500">Rs. ${i.price} x ${i.qty}</p></div><span class="font-bold text-brand">Rs. ${i.price * i.qty}</span></div>`;
+            }).join('');
+            document.getElementById('cart-subtotal').innerText = `Rs. ${subtotal}`;
+            document.getElementById('cart-total').innerText = `Rs. ${subtotal + 100}`;
+            document.getElementById('cart-count').innerText = `${count} Items`;
+        }
+
+        function placeOrder() {
+            const name = document.getElementById('cust-name').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
+            const address = document.getElementById('cust-address').value.trim();
+            if(!name || !phone || !address || cart.length === 0) {
+                alert("Please fill Name, Phone, Address and add items to cart.");
+                return;
+            }
+            const subtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+            const orderId = `ZG-${Math.floor(1000 + Math.random() * 9000)}`;
+            orders.unshift({
+                id: orderId, customer: name, phone: phone, location: document.getElementById('cust-location').value,
+                address: address, paymentType: document.getElementById('cust-payment-type').value,
+                tid: document.getElementById('cust-tid')?.value.trim() || 'N/A', notes: document.getElementById('cust-notes').value || "None",
+                items: [...cart], total: subtotal + 100, status: "Pending", time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+            cart = [];
+            renderCart();
+            saveData();
+            alert(`🎉 Order Placed Successfully!\n\nOrder ID: ${orderId}\nTotal: Rs. ${subtotal + 100}`);
+        }
+
+        function submitComplaint(e) {
+            e.preventDefault();
+            complaints.unshift({
+                customer: document.getElementById('comp-name').value.trim(),
+                orderId: document.getElementById('comp-order-id').value.trim() || "General",
+                message: document.getElementById('comp-message').value.trim(),
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+            document.getElementById('comp-name').value = '';
+            document.getElementById('comp-order-id').value = '';
+            document.getElementById('comp-message').value = '';
+            saveData();
+            alert("Complaint submitted successfully.");
+        }
+
+        function openMenuModal(editId = null) {
+            const modal = document.getElementById('menu-modal');
+            const title = document.getElementById('menu-modal-title');
+            if(editId) {
+                const item = menuItems.find(i => i.id === editId);
+                title.innerText = "Edit Menu Dish";
+                document.getElementById('menu-edit-id').value = item.id;
+                document.getElementById('menu-name').value = item.name;
+                document.getElementById('menu-category').value = item.category;
+                document.getElementById('menu-price').value = item.price;
+                document.getElementById('menu-img').value = item.img;
+                document.getElementById('menu-desc').value = item.desc;
+            } else {
+                title.innerText = "Add New Menu Dish";
+                document.getElementById('menu-edit-id').value = "";
+                document.getElementById('menu-name').value = "";
+                document.getElementById('menu-price').value = "";
+                document.getElementById('menu-img').value = "";
+                document.getElementById('menu-desc').value = "";
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeMenuModal() { document.getElementById('menu-modal').classList.add('hidden'); }
+
+        function handleMenuSubmit(e) {
+            e.preventDefault();
+            const editId = document.getElementById('menu-edit-id').value;
+            const name = document.getElementById('menu-name').value.trim();
+            const category = document.getElementById('menu-category').value;
+            const price = parseInt(document.getElementById('menu-price').value);
+            const img = document.getElementById('menu-img').value.trim();
+            const desc = document.getElementById('menu-desc').value.trim();
+
+            if(editId) {
+                const item = menuItems.find(i => i.id == editId);
+                item.name = name; item.category = category; item.price = price; item.img = img; item.desc = desc;
+            } else {
+                menuItems.push({ id: Date.now(), name, category, price, img, desc, inStock: true });
+            }
+            localStorage.setItem('zg_stock_menu', JSON.stringify(menuItems));
+            closeMenuModal();
+            renderCategories(); renderMenu(); renderAdminMenuTable();
+        }
+
+        function deleteMenuItem(id) {
+            if(confirm("Delete this dish?")) {
+                menuItems = menuItems.filter(i => i.id !== id);
+                localStorage.setItem('zg_stock_menu', JSON.stringify(menuItems));
+                renderCategories(); renderMenu(); renderAdminMenuTable();
+            }
+        }
+
+        function toggleStock(id) {
+            const item = menuItems.find(i => i.id === id);
+            item.inStock = !item.inStock;
+            localStorage.setItem('zg_stock_menu', JSON.stringify(menuItems));
+            renderMenu(); renderAdminMenuTable();
+        }
+
+        function renderAdminMenuTable() {
+            const container = document.getElementById('admin-menu-table');
+            if(!container) return;
+            container.innerHTML = menuItems.map(item => `
+                <tr class="hover:bg-gray-50 border-b">
+                    <td class="p-3 flex items-center gap-3">
+                        <img src="${item.img}" class="w-10 h-10 object-cover rounded-lg border">
+                        <div><p class="font-bold text-gray-800 text-xs">${item.name}</p></div>
+                    </td>
+                    <td class="p-3 text-xs font-semibold text-brand">${item.category}</td>
+                    <td class="p-3 text-xs font-extrabold text-gold">Rs. ${item.price}</td>
+                    <td class="p-3 text-xs"><button onclick="toggleStock(${item.id})" class="px-2 py-1 rounded font-bold text-[10px] ${item.inStock ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${item.inStock ? 'In Stock' : 'Out of Stock'}</button></td>
+                    <td class="p-3 text-right space-x-1">
+                        <button onclick="openMenuModal(${item.id})" class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Edit</button>
+                        <button onclick="deleteMenuItem(${item.id})" class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderKitchen() {
+            const container = document.getElementById('kds-orders-container');
+            const active = orders.filter(o => o.status !== 'Delivered');
+            if(active.length === 0) { container.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 bg-white rounded-xl shadow">No active orders.</div>`; return; }
+            container.innerHTML = active.map(o => `
+                <div class="bg-white rounded-xl shadow-md border-2 p-4 space-y-3">
+                    <div class="flex justify-between items-center border-b pb-2"><span class="font-extrabold text-brand">${o.id}</span><span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">${o.status}</span></div>
+                    <div class="text-xs text-gray-600 space-y-0.5"><p class="font-bold text-gray-800">${o.customer} (${o.phone})</p><p>${o.address} (${o.location})</p></div>
+                    <div class="pt-2 border-t flex gap-2">
+                        ${o.status === 'Pending' ? `<button onclick="updateStatus('${o.id}', 'Preparing')" class="flex-1 bg-amber-500 text-white font-bold text-xs py-2 rounded-lg">Start Preparing</button>` : ''}
+                        ${o.status === 'Preparing' ? `<button onclick="updateStatus('${o.id}', 'Ready')" class="flex-1 bg-blue-600 text-white font-bold text-xs py-2 rounded-lg">Mark Ready</button>` : ''}
+                        ${o.status === 'Ready' ? `<button onclick="updateStatus('${o.id}', 'Dispatched')" class="flex-1 bg-brand text-gold font-bold text-xs py-2 rounded-lg">Assign Rider</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStatus(id, newStatus) {
+            const o = orders.find(x => x.id === id);
+            if(o) { o.status = newStatus; saveData(); }
+        }
+
+        function renderRider() {
+            const container = document.getElementById('rider-orders-container');
+            const tasks = orders.filter(o => o.status === 'Dispatched');
+            if(tasks.length === 0) { container.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 bg-white rounded-xl shadow">No deliveries assigned.</div>`; return; }
+            container.innerHTML = tasks.map(o => `
+                <div class="bg-white p-5 rounded-xl shadow border-l-4 border-brand space-y-3">
+                    <div class="flex justify-between"><span class="font-bold text-brand">${o.id}</span><span class="font-bold text-gold">Rs. ${o.total}</span></div>
+                    <div class="text-xs text-gray-600 space-y-1"><p><strong>Customer:</strong> ${o.customer} (${o.phone})</p><p><strong>Address:</strong> ${o.address}</p></div>
+                    <button onclick="updateStatus('${o.id}', 'Delivered')" class="w-full bg-green-600 text-white font-bold py-2 rounded-lg text-xs">Mark Delivered</button>
+                </div>
+            `).join('');
+        }
+
+        function renderAdmin() {
+            document.getElementById('stat-revenue').innerText = `Rs. ${orders.filter(o => o.status === 'Delivered').reduce((sum, o) => sum + o.total, 0)}`;
+            document.getElementById('stat-orders').innerText = orders.length;
+            document.getElementById('stat-complaints').innerText = complaints.length;
+            renderAdminMenuTable();
+            document.getElementById('admin-complaints-table').innerHTML = complaints.length === 0 ? `<tr><td colspan="4" class="p-4 text-center text-gray-400">No complaints.</td></tr>` : complaints.map(c => `<tr class="hover:bg-red-50"><td class="p-3 font-bold">${c.customer}</td><td class="p-3 text-red-600">${c.orderId}</td><td class="p-3">${c.message}</td><td class="p-3 text-xs text-gray-400">${c.time}</td></tr>`).join('');
+            document.getElementById('admin-orders-table').innerHTML = orders.map(o => `<tr class="hover:bg-gray-50"><td class="p-3 font-bold text-brand">${o.id}</td><td class="p-3">${o.customer}</td><td class="p-3">${o.address}</td><td class="p-3 font-bold">Rs. ${o.total}</td><td class="p-3"><span class="text-xs font-bold px-2 py-0.5 rounded bg-purple-100 text-brand">${o.status}</span></td></tr>`).join('');
+        }
+
+        function saveData() {
+            localStorage.setItem('zg_orders', JSON.stringify(orders));
+            localStorage.setItem('zg_complaints', JSON.stringify(complaints));
+            renderStaffDashboard();
+        }
+
+        function clearSystemData() {
+            if(confirm("Reset data?")) { localStorage.removeItem('zg_orders'); localStorage.removeItem('zg_complaints'); orders = []; complaints = []; saveData(); }
+        }
+
+        function renderStaffDashboard() {
+            if(!activeStaff) return;
+            if(activeStaff.role === 'kitchen') renderKitchen();
+            if(activeStaff.role === 'rider') renderRider();
+            if(activeStaff.role === 'admin') renderAdmin();
+        }
+
+        initApp();
+    </script>
+</body>
+</html>
